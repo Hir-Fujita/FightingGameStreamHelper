@@ -10,6 +10,7 @@ import Object
 """
 レイアウトオブジェクト作成用Canvasと実際にオブジェクトの配置を決めるCanvasで使用しない関数が多々ある
 共同関数のみの親クラスから継承する形に変更する
+test
 """
 
 class Canvas:
