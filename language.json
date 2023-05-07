@@ -1,0 +1,22 @@
+{
+    "0":{
+        "JPN":"ゲーム選択",
+        "ENG":"GameSelect"
+    },
+    "1":{
+        "JPN":"プレイヤー登録",
+        "ENG":"Player_Register"
+    },
+    "2":{
+        "JPN":"チーム登録",
+        "ENG":"Team_Register"
+    },
+    "3":{
+        "JPN":"レイアウト設定",
+        "ENG":"Layout_Setting"
+    },
+    "4":{
+        "JPN":"言語選択",
+        "ENG":"Language_Select"
+    }
+}
