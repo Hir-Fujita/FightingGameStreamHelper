@@ -30,6 +30,9 @@ class Manager:
 class LayoutData:
     def __init__(self):
         self.list = []
+        self.flag_player = False
+        self.flag_count = False
+        self.team_count = 0
 
     def save(self, filepath):
         self.name = os.path.basename(filepath)
@@ -58,11 +61,9 @@ class LayoutData:
                 for obj in layout.object_list:
                     if type(obj) == ImageObject:
                         print(f"ImageObject__{obj.name}")
-                    elif type(obj) == VariableObject:
+                    if type(obj) == VariableObject:
                         print(f"VariableObject__{obj.name}")
-
-
-class LayoutVariable:
-    def player_init(self):
-        self.name_variable = tk.StringVar()
+                        print(obj.category)
+                        print(obj.style)
+                        print(obj.sub_style)
 

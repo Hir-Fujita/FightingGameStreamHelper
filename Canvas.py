@@ -211,6 +211,7 @@ class Canvas:
 
     def image_delete(self, image):
         self.canvas.delete(image.name)
+        print(self.image_list)
         self.image_list.remove(image)
         self.rect_delete()
 
@@ -319,8 +320,8 @@ class LayoutItemCreateCanvas(Canvas):
                                      tag=self.image_list[-1].name)
             self.layer_update()
 
-    def create_object(self, style, square):
-        data = Object.VariableObject(style, square)
+    def create_object(self, square:bool, style:str, sub_style:str):
+        data = Object.VariableObject(square, style, sub_style)
         while self.overlap_check(data.name):
             data.rename(f"_{data.name}", square)
         self.image_list.append(data)

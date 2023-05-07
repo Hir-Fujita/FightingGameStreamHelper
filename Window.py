@@ -478,7 +478,7 @@ class CreateNewLayout(Window):
         player_image_select_box.pack()
         player_image_create_button = tk.Button(player_image_frame,
                                                text="  生成  ",
-                                               command=lambda:obj_create(player_image_select_box, "player", True))
+                                               command=lambda:obj_create(player_image_select_box, True, "player"))
         player_image_create_button.pack(pady=5)
         player_text_frame = tk.LabelFrame(player_obj_create_frame,
                                           text="テキスト")
@@ -494,7 +494,7 @@ class CreateNewLayout(Window):
         player_text_select_box.current(0)
         player_text_create_button = tk.Button(player_text_frame,
                                              text="  生成  ",
-                                             command=lambda:obj_create(player_text_select_box, "player", False))
+                                             command=lambda:obj_create(player_text_select_box, False, "player"))
         player_text_create_button.pack(pady=5)
 
         team_create_frame = tk.LabelFrame(left_frame, text="チーム")
@@ -514,7 +514,7 @@ class CreateNewLayout(Window):
         team_image_select_box.pack()
         team_image_create_button = tk.Button(team_image_create_frame,
                                              text="  生成  ",
-                                             command=lambda:obj_create(team_image_select_box, "team", True))
+                                             command=lambda:obj_create(team_image_select_box, True, "team"))
         team_image_create_button.pack(pady=5)
         team_text_create_frame = tk.LabelFrame(team_create_frame, text="テキスト")
         team_text_create_frame.pack(fill=tk.BOTH, padx=5, pady=5)
@@ -529,7 +529,7 @@ class CreateNewLayout(Window):
         team_text_select_box.current(0)
         team_text_create_button = tk.Button(team_text_create_frame,
                                              text="  生成  ",
-                                             command=lambda:obj_create(team_text_select_box, "team", False))
+                                             command=lambda:obj_create(team_text_select_box, False, "team"))
         team_text_create_button.pack(pady=5)
 
         counter_create_frame = tk.LabelFrame(left_frame,
@@ -616,7 +616,7 @@ class CreateNewLayout(Window):
             layer_box.select_clear(0, tk.END)
             layer_box.select_set(num + sum_number)
 
-        def obj_create(widget, object_title:str, square):
+        def obj_create(widget, square:bool, style:str):
             name_dic = {"プレイヤー名":"name",
                         "使用キャラ":"character",
                         "所属チーム":"team",
@@ -626,18 +626,15 @@ class CreateNewLayout(Window):
                         "プレイヤー":"image",
                         "キャラ":"character"}
             name = widget.get()
-            if square:
-                self.canvas.create_object(f"Image.{object_title}.{name_dic[name]}", square)
-            else:
-                self.canvas.create_object(f"Text.{object_title}.{name_dic[name]}", square)
+            self.canvas.create_object(square, style, name_dic[name])
             name_list_update()
 
         def teamname_obj_create():
-            self.canvas.create_object("TeamTitle", square=False)
+            self.canvas.create_object(False, "team", "title")
             name_list_update()
 
         def coutner_obj_create():
-            self.canvas.create_object("counter", square=True)
+            self.canvas.create_object(True, "counter", "counter")
             name_list_update()
 
         def obj_delete():

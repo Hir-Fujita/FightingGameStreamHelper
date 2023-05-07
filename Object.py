@@ -75,7 +75,15 @@ class Layout:
         self.copy.thumbnail(size)
         self.tk_image = returnImageTk(self.copy)
 
-
+    def object_count(self):
+        player = False
+        team = False
+        for obj in self.object_list:
+            if obj.style == "player":
+                player = True
+            if obj.style == "team":
+                team = True
+        return player, team
 
 class ImageObject:
     def __init__(self, filepath):
@@ -112,8 +120,15 @@ class ImageObject:
 
 
 class VariableObject(ImageObject):
-    def __init__(self, style:str, square:bool):
-        self.name = style
+    def __init__(self, square:bool, style:str, sub_style:str):
+        if square:
+            self.category = "image"
+        else:
+            self.category = "text"
+        self.square = square
+        self.style = style
+        self.sub_style = sub_style
+        self.name = f"{self.category}.{self.style}.{self.sub_style}"
         self.image = Object_image_create(self.name, square)
         self.copy = self.image.copy()
         self.tk_image = returnImageTk(self.image)
