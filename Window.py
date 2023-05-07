@@ -274,14 +274,13 @@ class TeamRegisterWindow(Window):
 
 
 
-class RayoutWindow(Window):
+class LayoutWindow(Window):
     def __init__(self):
         super().__init__()
 
     def create(self, manager:Manager, title, width, height):
         super().call(manager, title, width, height)
         super().create()
-        self.layout_list = []
         self.widget_list = []
         image_frame = tk.Frame(self.window)
         image_frame.pack(side=tk.RIGHT)
@@ -290,6 +289,21 @@ class RayoutWindow(Window):
 
         left_frame = tk.LabelFrame(self.window)
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH)
+
+        top_frame = tk.Frame(left_frame)
+        top_frame.pack()
+        save_button = tk.Button(top_frame,
+                                text="SAVE",
+                                command=lambda:save())
+        save_button.pack(side=tk.LEFT)
+        load_button = tk.Button(top_frame,
+                                text="LOAD",
+                                command=lambda:load())
+        load_button.pack(side=tk.LEFT, padx=10, pady=5)
+        test_button = tk.Button(top_frame,
+                                text="test",
+                                command=lambda:self.manager.layout.object_check())
+        test_button.pack()
         add_frame = tk.LabelFrame(left_frame,
                                   text="オブジェクト追加")
         add_frame.pack()
@@ -307,34 +321,46 @@ class RayoutWindow(Window):
                                      text="オブジェクト設定")
         config_frame.pack()
 
-        layout_create_button = tk.Button(left_frame,
-                                         text="新規オブジェクト作成",
-                                         command=lambda:self.create_new_layout())
-        layout_create_button.pack()
-
         self.layout_widget_frame = tk.LabelFrame(left_frame,
                                                  text="Setting")
         self.layout_widget_frame.pack()
 
+        def save():
+            filepath = filedialog.asksaveasfilename(title="LayoutSystemFile保存",
+                                                    parent=self.window,
+                                                    defaultextension=".lsf",
+                                                    filetypes=[("layoutSystemFile", ".lsf")],
+                                                    initialdir=f"FightingGameStreamHelper/LayoutSystem")
+            self.manager.layout.save(filepath)
+            self.canvas.create_image_in_layoutObject(self.manager.layout)
+
+        def load():
+            filepath = filedialog.askopenfilename(title="LayoutSystemFile読み込み",
+                                                  parent=self.window,
+                                                  filetypes=[("layoutSystemFile", ".lsf")],
+                                                  initialdir=f"FightingGameStreamHelper/LayoutSystem")
+            self.manager.layout = self.manager.layout.load(filepath)
+            self.canvas.create_image_in_layoutObject(self.manager.layout)
+
         def create_layout_image():
             layout = Layout().load(f"FightingGameStreamHelper/GameTitle/{self.manager.title}/layout/{layout_add_box.get()}")
-            for item in self.layout_list:
+            for item in self.manager.layout.list:
                 if item.name == layout.name:
                     layout.name = f"_{layout.name}"
             layout.create_layout_image()
-            self.layout_list.append(layout)
+            self.manager.layout.list.append(layout)
             self.canvas.create_layout_object_image(layout)
             layout_setting()
 
         def set_check(num, set=True):
-            self.canvas.canvas.delete(self.layout_list[num].name)
+            self.canvas.image_delete(self.manager.layout.list[num])
             if set:
-                self.layout_list[num].set_miror()
-            if self.layout_list[num].miror:
+                self.manager.layout.list[num].set_miror()
+            if self.manager.layout.list[num].miror:
                 self.widget_list[num].config(bg="blue")
             else:
                 self.widget_list[num].config(bg="SystemButtonFace")
-            self.canvas.create_layout_object_image(self.layout_list[num])
+            self.canvas.create_layout_object_image(self.manager.layout.list[num])
 
         def layout_setting():
             self.layout_widget_frame.destroy()
@@ -342,7 +368,7 @@ class RayoutWindow(Window):
                                                  text="Setting")
             self.layout_widget_frame.pack()
             self.widget_list = []
-            for num, layout in enumerate(self.layout_list):
+            for num, layout in enumerate(self.manager.layout.list):
                 frame = tk.LabelFrame(self.layout_widget_frame,
                                       text=f"{layout.name}")
                 frame.pack()
@@ -351,15 +377,32 @@ class RayoutWindow(Window):
                                          command=lambda num=num:set_check(num))
                 self.widget_list.append(check_button)
                 set_check(num, False)
-                check_button.pack()
+                check_button.pack(side=tk.LEFT, padx=5)
+                layer_up = tk.Button(frame,
+                                     text="▲",
+                                     command=lambda num=num:layer_move(num, -1))
+                layer_up.pack(side=tk.LEFT)
+                layer_down = tk.Button(frame,
+                                       text="▼",
+                                       command=lambda num=num:layer_move(num, 1))
+                layer_down.pack(side=tk.LEFT)
+                delete_button = tk.Button(frame,
+                                          text="Delete",
+                                          command=lambda num=num:layout_delete(num))
+                delete_button.pack(side=tk.LEFT, padx=5)
 
-    def create_new_layout(self):
-        window = CreateNewLayout()
-        window.create(self.manager,
-                      "新規オブジェクト作成",
-                      980 + 300 + 300,
-                      540)
+        def layout_delete(num):
+            self.canvas.image_delete(self.manager.layout.list[num])
+            self.canvas.rect_delete()
+            del self.manager.layout.list[num]
+            del self.widget_list[num]
+            layout_setting()
 
+        def layer_move(num, sum_number):
+            self.manager.layout.list[num], self.manager.layout.list[num + sum_number] = self.manager.layout.list[num + sum_number], self.manager.layout.list[num]
+            layout_setting()
+            self.canvas.image_list = self.manager.layout.list.copy()
+            self.canvas.layer_update()
 
 
 

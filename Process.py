@@ -20,9 +20,9 @@ def Object_check(filepath):
     else:
         return False
 
-def textsize(text):
+def textsize(text, font="meiryo.ttc"):
     image = Image.new("RGBA", size=(100,100), color=(0,0,0,0))
-    font = ImageFont.truetype("FightingGameStreamHelper/font/meiryo.ttc", 40)
+    font = ImageFont.truetype(f"FightingGameStreamHelper/font/{font}", 40)
     draw = ImageDraw.Draw(image)
     size = draw.textsize(text, font)
     return size, font
@@ -48,6 +48,18 @@ def Object_image_create(style:str, square=False):
               stroke_width=5,
               stroke_fill="black",
               anchor="mm")
+    return image
+
+def generate_image(text:str, fontname:str, fill="white", width=5, stroke_fill="black"):
+    size, font = textsize(text, fontname)
+    image = Image.new("RGBA", size=size, color=(0,0,0,0))
+    draw = ImageDraw.Draw(image)
+    draw.text((0, 0),
+              text,
+              font=font,
+              fill=fill,
+              stroke_width=width,
+              stroke_fill=stroke_fill)
     return image
 
 def openfile(filepath):

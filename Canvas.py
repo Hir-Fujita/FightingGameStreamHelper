@@ -254,21 +254,6 @@ class Canvas:
         layout.save(filepath)
         self.create_image_in_layoutObject(layout)
 
-    def load_layout(self, filepath):
-        layout = Object.Layout()
-        layout = layout.load(filepath)
-        self.create_image_in_layoutObject(layout)
-
-    def create_image_in_layoutObject(self, layout):
-        self.canvas.delete("all")
-        self.image_list = layout.object_list.copy()
-        for object in reversed(layout.object_list):
-            self.canvas.create_image(layout.position[0] + object.position[0],
-                                     layout.position[1] + object.position[1],
-                                     anchor="nw",
-                                     image=object.tk_image,
-                                     tag=object.name)
-
 
 class LayoutCanvas(Canvas):
     def __init__(self, master, width, height):
@@ -302,6 +287,17 @@ class LayoutCanvas(Canvas):
             bbox = self.find_bbox(image.name)
             image.set_position((bbox[0], bbox[1]))
 
+    def create_image_in_layoutObject(self, layout):
+        self.canvas.delete("all")
+        self.create_background_image()
+        self.image_list = layout.list.copy()
+        for obj in reversed(self.image_list):
+            self.canvas.create_image(obj.position[0],
+                                     obj.position[1],
+                                     anchor="nw",
+                                     image=obj.tk_image,
+                                     tag=obj.name)
+
 
 
 class LayoutItemCreateCanvas(Canvas):
@@ -334,3 +330,18 @@ class LayoutItemCreateCanvas(Canvas):
                                  image=self.image_list[-1].tk_image,
                                  tag=self.image_list[-1].name)
         self.layer_update()
+
+    def load_layout(self, filepath):
+        layout = Object.Layout()
+        layout = layout.load(filepath)
+        self.create_image_in_layoutObject(layout)
+
+    def create_image_in_layoutObject(self, layout):
+        self.canvas.delete("all")
+        self.image_list = layout.object_list.copy()
+        for object in reversed(layout.object_list):
+            self.canvas.create_image(layout.position[0] + object.position[0],
+                                     layout.position[1] + object.position[1],
+                                     anchor="nw",
+                                     image=object.tk_image,
+                                     tag=object.name)

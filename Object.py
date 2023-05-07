@@ -4,7 +4,7 @@
 import os
 import pickle
 from PIL import Image, ImageOps
-from Process import openfile, returnImageTk, Object_image_create
+from Process import openfile, returnImageTk, Object_image_create, generate_image
 
 class Layout:
     def __init__(self):
@@ -31,6 +31,11 @@ class Layout:
         for obj in self.object_list:
             obj.load_process()
 
+    def save_process(self):
+        del self.tk_image
+        for obj in self.object_list:
+            obj.save_process()
+
     def load(self, filepath):
         if os.path.isfile(filepath):
             with open(filepath, "rb") as f:
@@ -40,6 +45,11 @@ class Layout:
         for obj in self.object_list:
             obj.load_process()
         return self
+
+    def load_process(self):
+        self.create_layout_image()
+        for obj in self.object_list:
+            obj.load_process()
 
     def create_layout_image(self):
         self.image = Image.new("RGBA", size=self.size, color=(0,0,0,0))
@@ -115,3 +125,10 @@ class VariableObject(ImageObject):
 
     def miror(self, miror):
         pass
+
+    def generate(self, variable):
+        if os.path.isfile(variable):
+            self.image = openfile(variable)
+        else:
+            self.image = generate_image(variable)
+        self.image.thumbnail(self.size)
