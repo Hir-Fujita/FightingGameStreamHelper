@@ -7,11 +7,6 @@ import tkinter as tk
 from Process import openfile, returnImageTk, image_check, Object_image_create
 import Object
 
-"""
-レイアウトオブジェクト作成用Canvasと実際にオブジェクトの配置を決めるCanvasで使用しない関数が多々ある
-共同関数のみの親クラスから継承する形に変更する
-test
-"""
 
 class Canvas:
     def __init__(self, master, width, height):
@@ -26,9 +21,8 @@ class Canvas:
         self.canvas.pack()
         self.image_list = []
 
-    def overlap_check(self, name:str):
-        namelist = [image.name for image in self.image_list]
-        if name in namelist:
+    def overlap_check(self, data):
+        if data in self.image_list:
             return True
         else:
             return False
@@ -61,10 +55,10 @@ class Canvas:
         color = "red"
         rect_size = 3
         for image in self.image_list:
-            if image.name == image_name:
-                self.tag = (image.name, "current")
+            if f"{image.name}_{image.number}" == image_name:
+                self.tag = (f"{image.name}_{image.number}", "current")
                 self.canvas.addtag_withtag("move", image_name)
-                bbox = self.find_bbox(image.name)
+                bbox = self.find_bbox(f"{image.name}_{image.number}")
                 self.canvas.create_rectangle(bbox[0],
                                              bbox[1],
                                              bbox[2],
@@ -170,7 +164,7 @@ class Canvas:
 
     def image_resize(self):
         for image in self.image_list:
-            if image.name == self.tag[0]:
+            if f"{image.name}_{image.number}" == self.tag[0]:
                 image.resize((self.pos[2] - self.pos[0],
                               self.pos[3] - self.pos[1]))
                 self.canvas.delete(self.tag[0])
@@ -178,9 +172,9 @@ class Canvas:
                                          self.pos[1],
                                          anchor="nw",
                                          image=image.tk_image,
-                                         tag=image.name)
+                                         tag=f"{image.name}_{image.number}")
                 self.rect_delete()
-                self.image_select(image.name)
+                self.image_select(f"{image.name}_{image.number}")
                 break
         self.layer_update()
         self.move_tag_delete()
@@ -194,6 +188,7 @@ class Canvas:
     def left_click(self, event):
         tag = self.find_tag(event)
         self.resize = False
+        print(self.image_list)
         print(f"func_leftClick_{tag}")
         if tag[-1] == "current":
             if "rect" in tag[0]:
@@ -210,8 +205,7 @@ class Canvas:
             self.rect_delete()
 
     def image_delete(self, image):
-        self.canvas.delete(image.name)
-        print(self.image_list)
+        self.canvas.delete(f"{image.name}_{image.number}")
         self.image_list.remove(image)
         self.rect_delete()
 
@@ -225,7 +219,7 @@ class Canvas:
         tag_list = self.tag_get_all()
         for image in self.image_list:
             for tag in tag_list:
-                if tag[0] == image.name:
+                if tag[0] == f"{image.name}_{image.number}":
                     self.canvas.lower(tag[0])
                     break
 
@@ -236,7 +230,7 @@ class Canvas:
         min_y = 540
         max_y = 0
         for image in self.image_list:
-            bbox = self.find_bbox(image.name)
+            bbox = self.find_bbox(f"{image.name}_{image.number}")
             if min_x > bbox[0]:
                 min_x = bbox[0]
             if min_y > bbox[1]:
@@ -246,7 +240,7 @@ class Canvas:
             if max_y < bbox[3]:
                 max_y = bbox[3]
         for image in self.image_list:
-            bbox = self.find_bbox(image.name)
+            bbox = self.find_bbox(f"{image.name}_{image.number}")
             layout_position = (bbox[0] - min_x, bbox[1] - min_y)
             image.set_position((layout_position[0], layout_position[1]))
             layout.object_list.append(image)
@@ -274,7 +268,7 @@ class LayoutCanvas(Canvas):
                                  layout.position[1],
                                  anchor="nw",
                                  image=self.image_list[-1].tk_image,
-                                 tag=self.image_list[-1].name)
+                                 tag=f"{layout.name}_{layout.number}")
 
     def layer_update(self):
         super().layer_update()
@@ -285,7 +279,7 @@ class LayoutCanvas(Canvas):
     def mouse_release(self):
         super().mouse_release()
         for image in self.image_list:
-            bbox = self.find_bbox(image.name)
+            bbox = self.find_bbox(f"{image.name}_{image.number}")
             image.set_position((bbox[0], bbox[1]))
 
     def create_image_in_layoutObject(self, layout):
@@ -297,7 +291,7 @@ class LayoutCanvas(Canvas):
                                      obj.position[1],
                                      anchor="nw",
                                      image=obj.tk_image,
-                                     tag=obj.name)
+                                     tag=f"{obj.name}_{obj.number}")
 
 
 
@@ -310,26 +304,26 @@ class LayoutItemCreateCanvas(Canvas):
         file = image_check(filepath)
         if file:
             data = Object.ImageObject(filepath)
-            while self.overlap_check(data.name):
-                data.name = f"_{data.name}"
+            while self.overlap_check(data):
+                data.rename()
             self.image_list.append(data)
             self.canvas.create_image(100,
                                      100,
                                      anchor="nw",
                                      image=self.image_list[-1].tk_image,
-                                     tag=self.image_list[-1].name)
+                                     tag=f"{data.name}_{data.number}")
             self.layer_update()
 
     def create_object(self, square:bool, style:str, sub_style:str):
         data = Object.VariableObject(square, style, sub_style)
-        while self.overlap_check(data.name):
-            data.rename(f"_{data.name}", square)
+        while self.overlap_check(data):
+            data.rename()
         self.image_list.append(data)
         self.canvas.create_image(100,
                                  100,
                                  anchor="nw",
                                  image=self.image_list[-1].tk_image,
-                                 tag=self.image_list[-1].name)
+                                 tag=f"{data.name}_{data.number}")
         self.layer_update()
 
     def load_layout(self, filepath):

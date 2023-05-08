@@ -287,24 +287,24 @@ class LayoutWindow(Window):
         self.canvas = LayoutCanvas(image_frame, 980, 540)
         self.canvas.create_background_image()
 
-        left_frame = tk.LabelFrame(self.window)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH)
+        self.left_frame = tk.LabelFrame(self.window)
+        self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH)
 
-        top_frame = tk.Frame(left_frame)
+        top_frame = tk.Frame(self.left_frame)
         top_frame.pack()
         save_button = tk.Button(top_frame,
                                 text="SAVE",
-                                command=lambda:save())
+                                command=lambda:self.save())
         save_button.pack(side=tk.LEFT)
         load_button = tk.Button(top_frame,
                                 text="LOAD",
-                                command=lambda:load())
+                                command=lambda:self.load())
         load_button.pack(side=tk.LEFT, padx=10, pady=5)
         test_button = tk.Button(top_frame,
                                 text="test",
                                 command=lambda:self.manager.layout.object_check())
         test_button.pack()
-        add_frame = tk.LabelFrame(left_frame,
+        add_frame = tk.LabelFrame(self.left_frame,
                                   text="オブジェクト追加")
         add_frame.pack()
         layout_list = os.listdir(f"FightingGameStreamHelper/GameTitle/{self.manager.title}/layout")
@@ -314,95 +314,102 @@ class LayoutWindow(Window):
         layout_add_box.pack()
         layout_add_button = tk.Button(add_frame,
                                       text="   追加   ",
-                                      command=lambda:create_layout_image())
+                                      command=lambda:self.create_layout_image(layout_add_box))
         layout_add_button.pack()
 
-        config_frame = tk.LabelFrame(left_frame,
+        config_frame = tk.LabelFrame(self.left_frame,
                                      text="オブジェクト設定")
         config_frame.pack()
 
-        self.layout_widget_frame = tk.LabelFrame(left_frame,
+        self.layout_widget_frame = tk.LabelFrame(self.left_frame,
                                                  text="Setting")
         self.layout_widget_frame.pack()
+        self.layout_setting()
+        self.canvas.create_image_in_layoutObject(self.manager.layout)
 
-        def save():
-            filepath = filedialog.asksaveasfilename(title="LayoutSystemFile保存",
-                                                    parent=self.window,
-                                                    defaultextension=".lsf",
-                                                    filetypes=[("layoutSystemFile", ".lsf")],
-                                                    initialdir=f"FightingGameStreamHelper/LayoutSystem")
-            self.manager.layout.save(filepath)
-            self.canvas.create_image_in_layoutObject(self.manager.layout)
+    def save(self):
+        filepath = filedialog.asksaveasfilename(title="LayoutSystemFile保存",
+                                                parent=self.window,
+                                                defaultextension=".lsf",
+                                                filetypes=[("layoutSystemFile", ".lsf")],
+                                                initialdir=f"FightingGameStreamHelper/LayoutSystem")
+        self.manager.layout.save(filepath)
+        self.canvas.create_image_in_layoutObject(self.manager.layout)
 
-        def load():
-            filepath = filedialog.askopenfilename(title="LayoutSystemFile読み込み",
-                                                  parent=self.window,
-                                                  filetypes=[("layoutSystemFile", ".lsf")],
-                                                  initialdir=f"FightingGameStreamHelper/LayoutSystem")
-            self.manager.layout = self.manager.layout.load(filepath)
-            self.canvas.create_image_in_layoutObject(self.manager.layout)
+    def load(self):
+        filepath = filedialog.askopenfilename(title="LayoutSystemFile読み込み",
+                                                parent=self.window,
+                                                filetypes=[("layoutSystemFile", ".lsf")],
+                                                initialdir=f"FightingGameStreamHelper/LayoutSystem")
+        self.manager.layout = self.manager.layout.load(filepath)
+        self.canvas.create_image_in_layoutObject(self.manager.layout)
 
-        def create_layout_image():
-            layout = Layout().load(f"FightingGameStreamHelper/GameTitle/{self.manager.title}/layout/{layout_add_box.get()}")
-            for item in self.manager.layout.list:
-                if item.name == layout.name:
-                    layout.name = f"_{layout.name}"
-            layout.create_layout_image()
-            self.manager.layout.list.append(layout)
-            self.canvas.create_layout_object_image(layout)
-            layout_setting()
+    def overlap_check(self, data):
+        if data in self.manager.layout.list:
+            return True
+        else:
+            return False
 
-        def set_check(num, set=True):
-            self.canvas.image_delete(self.manager.layout.list[num])
-            if set:
-                self.manager.layout.list[num].set_miror()
-            if self.manager.layout.list[num].miror:
-                self.widget_list[num].config(bg="blue")
-            else:
-                self.widget_list[num].config(bg="SystemButtonFace")
-            self.canvas.create_layout_object_image(self.manager.layout.list[num])
+    def create_layout_image(self, box):
+        layout = Layout().load(f"FightingGameStreamHelper/GameTitle/{self.manager.title}/layout/{box.get()}")
+        while self.overlap_check(layout):
+            layout.rename()
+        layout.create_layout_image()
+        self.manager.layout.list.append(layout)
+        self.canvas.create_layout_object_image(layout)
+        self.layout_setting()
 
-        def layout_setting():
-            self.layout_widget_frame.destroy()
-            self.layout_widget_frame = tk.LabelFrame(left_frame,
-                                                 text="Setting")
-            self.layout_widget_frame.pack()
-            self.widget_list = []
-            for num, layout in enumerate(self.manager.layout.list):
-                frame = tk.LabelFrame(self.layout_widget_frame,
-                                      text=f"{layout.name}")
-                frame.pack()
-                check_button = tk.Button(frame,
-                                         text="miror",
-                                         command=lambda num=num:set_check(num))
-                self.widget_list.append(check_button)
-                set_check(num, False)
-                check_button.pack(side=tk.LEFT, padx=5)
-                layer_up = tk.Button(frame,
-                                     text="▲",
-                                     command=lambda num=num:layer_move(num, -1))
-                layer_up.pack(side=tk.LEFT)
-                layer_down = tk.Button(frame,
-                                       text="▼",
-                                       command=lambda num=num:layer_move(num, 1))
-                layer_down.pack(side=tk.LEFT)
-                delete_button = tk.Button(frame,
-                                          text="Delete",
-                                          command=lambda num=num:layout_delete(num))
-                delete_button.pack(side=tk.LEFT, padx=5)
+    def set_check(self, num, set=True):
+        self.canvas.image_delete(self.manager.layout.list[num])
+        if set:
+            self.manager.layout.list[num].set_miror()
+        if self.manager.layout.list[num].miror:
+            self.widget_list[num].config(bg="blue")
+        else:
+            self.widget_list[num].config(bg="SystemButtonFace")
+        self.canvas.create_layout_object_image(self.manager.layout.list[num])
 
-        def layout_delete(num):
-            self.canvas.image_delete(self.manager.layout.list[num])
-            self.canvas.rect_delete()
-            del self.manager.layout.list[num]
-            del self.widget_list[num]
-            layout_setting()
+    def layout_setting(self):
+        self.layout_widget_frame.destroy()
+        self.layout_widget_frame = tk.LabelFrame(self.left_frame,
+                                                text="Setting")
+        self.layout_widget_frame.pack()
+        self.widget_list = []
+        for num, layout in enumerate(self.manager.layout.list):
+            frame = tk.LabelFrame(self.layout_widget_frame,
+                                    text=f"{layout.name}_{layout.number}")
+            frame.pack()
+            check_button = tk.Button(frame,
+                                        text="miror",
+                                        command=lambda num=num:self.set_check(num))
+            self.widget_list.append(check_button)
+            # set_check(num, False)
+            check_button.pack(side=tk.LEFT, padx=5)
+            layer_up = tk.Button(frame,
+                                    text="▲",
+                                    command=lambda num=num:self.layer_move(num, -1))
+            layer_up.pack(side=tk.LEFT)
+            layer_down = tk.Button(frame,
+                                    text="▼",
+                                    command=lambda num=num:self.layer_move(num, 1))
+            layer_down.pack(side=tk.LEFT)
+            delete_button = tk.Button(frame,
+                                        text="Delete",
+                                        command=lambda num=num:self.layout_delete(num))
+            delete_button.pack(side=tk.LEFT, padx=5)
 
-        def layer_move(num, sum_number):
-            self.manager.layout.list[num], self.manager.layout.list[num + sum_number] = self.manager.layout.list[num + sum_number], self.manager.layout.list[num]
-            layout_setting()
-            self.canvas.image_list = self.manager.layout.list.copy()
-            self.canvas.layer_update()
+    def layout_delete(self, num):
+        self.canvas.image_delete(self.manager.layout.list[num])
+        self.canvas.rect_delete()
+        del self.manager.layout.list[num]
+        del self.widget_list[num]
+        self.layout_setting()
+
+    def layer_move(self, num, sum_number):
+        self.manager.layout.list[num], self.manager.layout.list[num + sum_number] = self.manager.layout.list[num + sum_number], self.manager.layout.list[num]
+        self.layout_setting()
+        self.canvas.image_list = self.manager.layout.list.copy()
+        self.canvas.layer_update()
 
 
 
@@ -592,7 +599,7 @@ class CreateNewLayout(Window):
                                                   parent=self.window,
                                                   initialdir=f"FightingGameStreamHelper/image")
             self.canvas.create_image(filepath)
-            name_list = [image.name for image in self.canvas.image_list]
+            name_list = [f"{image.name}_{image.number}" for image in self.canvas.image_list]
             layer_variable.set(name_list)
 
         def listbox_select(event):
@@ -605,7 +612,7 @@ class CreateNewLayout(Window):
             widget.config(background=color[1])
 
         def name_list_update():
-            name_list = [image.name for image in self.canvas.image_list]
+            name_list = [f"{image.name}_{image.number}" for image in self.canvas.image_list]
             layer_variable.set(name_list)
 
         def layer_move(sum_number):

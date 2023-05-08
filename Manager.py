@@ -58,12 +58,16 @@ class LayoutData:
             print("None")
         else:
             for layout in self.list:
+                test = []
                 for obj in layout.object_list:
                     if type(obj) == ImageObject:
-                        print(f"ImageObject__{obj.name}")
+                        pass
                     if type(obj) == VariableObject:
-                        print(f"VariableObject__{obj.name}")
-                        print(obj.category)
-                        print(obj.style)
-                        print(obj.sub_style)
+                        test.append(f"{obj.category}_{obj.style}_{obj.sub_style}")
+                        print(obj.number)
+                import collections
+                c = collections.Counter(test)
+                print(test)
+                print(c)
+
 

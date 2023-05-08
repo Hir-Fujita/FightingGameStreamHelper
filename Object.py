@@ -10,6 +10,15 @@ class Layout:
     def __init__(self):
         self.object_list = []
         self.miror = False
+        self.number = 0
+
+    def __eq__(self, other):
+        if not isinstance(other, Layout):
+            return NotImplemented
+        return self.name == other.name and self.number == other.number
+
+    def rename(self):
+        self.number += 1
 
     def set_miror(self):
         self.miror = not self.miror
@@ -75,23 +84,23 @@ class Layout:
         self.copy.thumbnail(size)
         self.tk_image = returnImageTk(self.copy)
 
-    def object_count(self):
-        player = False
-        team = False
-        for obj in self.object_list:
-            if obj.style == "player":
-                player = True
-            if obj.style == "team":
-                team = True
-        return player, team
 
 class ImageObject:
     def __init__(self, filepath):
         self.name = os.path.basename(filepath)
+        self.number = 0
         self.image = openfile(filepath)
         self.size = self.image.size
         self.copy = self.image.copy()
         self.tk_image = returnImageTk(self.image)
+
+    def __eq__(self, other):
+        if not isinstance(other, ImageObject):
+            return NotImplemented
+        return self.name == other.name and self.number == other.number
+
+    def rename(self):
+        self.number += 1
 
     def resize(self, size:tuple):
         self.size = size
@@ -129,13 +138,14 @@ class VariableObject(ImageObject):
         self.style = style
         self.sub_style = sub_style
         self.name = f"{self.category}.{self.style}.{self.sub_style}"
-        self.image = Object_image_create(self.name, square)
+        self.number = 0
+        self.image = Object_image_create(f"{self.name}_{self.number}", self.square)
         self.copy = self.image.copy()
         self.tk_image = returnImageTk(self.image)
 
-    def rename(self, new_name, square:bool):
-        self.name = new_name
-        self.image = Object_image_create(self.name, square)
+    def rename(self):
+        super().rename()
+        self.image = Object_image_create(f"{self.name}_{self.number}", self.square)
         self.tk_image = returnImageTk(self.image)
 
     def miror(self, miror):
