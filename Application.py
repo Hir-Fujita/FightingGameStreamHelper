@@ -22,7 +22,9 @@ class Application(tk.Frame):
         super().__init__(master)
         master.geometry("600x200")
         master.title(f"{NAME}_{VERSION}.ver")
-        self.manager = Manager.Manager(LANGUAGE_LIST)
+        self.frame = tk.Frame(master)
+        self.frame.pack()
+        self.manager = Manager.Manager(LANGUAGE_LIST, self.frame)
         self.frame = tk.Frame(master)
 
         with open("FightingGameStreamHelper/language.json", "r", encoding="utf-8") as f:
@@ -31,7 +33,6 @@ class Application(tk.Frame):
             self.label_data = [label_data[label][language] for label in label_data]
 
         self.create_menu(master)
-        self.create_main_widget(master)
         self.player_register_window = Window.PlayerRegisterWindow()
         self.team_register_window = Window.TeamRegisterWindow()
         self.layout_window = Window.LayoutWindow()
@@ -101,9 +102,6 @@ class Application(tk.Frame):
             self.object_create_window.window_close()
             self.object_create_window.create(self.manager, title, 980 + 300 + 300, 540)
 
-    def create_main_widget(self, master):
-        self.frame = tk.Frame(master)
-        self.manager.layout.object_check()
 
 def main():
 	win = tk.Tk()

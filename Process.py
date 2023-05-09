@@ -86,6 +86,18 @@ def returnImageTk(image, resize=None, miror=None):
     return_image = ImageTk.PhotoImage(copy_image)
     return return_image
 
+def name_paste(image, name):
+    draw = ImageDraw.Draw(image)
+    _, font = textsize(name)
+    draw.text((0, 0),
+              name,
+              font=font,
+              fill="yellow",
+              stroke_width=5,
+              stroke_fill="black")
+    return image
+
+
 class Variable:
     def __init__(self):
         self.team_length = tk.IntVar(value=1)

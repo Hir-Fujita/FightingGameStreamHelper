@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import collections
 import pickle
 from PIL import Image, ImageOps
-from Process import openfile, returnImageTk, Object_image_create, generate_image
+from Process import openfile, returnImageTk, Object_image_create, generate_image, name_paste
 
 class Layout:
     def __init__(self):
@@ -16,6 +17,15 @@ class Layout:
         if not isinstance(other, Layout):
             return NotImplemented
         return self.name == other.name and self.number == other.number
+
+    def count(self):
+        counter = []
+        for obj in self.object_list:
+            if type(obj) == VariableObject:
+                counter.append(obj.count())
+        c = collections.Counter(counter)
+        c = c.most_common()
+        return c
 
     def rename(self):
         self.number += 1
@@ -74,6 +84,7 @@ class Layout:
                 self.image.paste(object.copy, position, mask=object.copy)
             else:
                 self.image.paste(object.copy, position)
+        self.image = name_paste(self.image, f"{self.name}_{self.number}")
         self.copy = self.image.copy()
         self.copy.thumbnail(self.re_size)
         self.tk_image = returnImageTk(self.copy)
@@ -127,6 +138,9 @@ class ImageObject:
             self.copy = copy.resize(self.size)
         self.tk_image = returnImageTk(self.copy)
 
+    def count(self):
+        pass
+
 
 class VariableObject(ImageObject):
     def __init__(self, square:bool, style:str, sub_style:str):
@@ -150,6 +164,9 @@ class VariableObject(ImageObject):
 
     def miror(self, miror):
         pass
+
+    def count(self):
+        return f"{self.style}_{self.sub_style}"
 
     def generate(self, variable):
         if os.path.isfile(variable):
