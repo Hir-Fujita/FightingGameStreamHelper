@@ -118,8 +118,7 @@ class PlayerRegisterWindow(Window):
                                                     filetypes=[("player_file", ".ply")],
                                                     initialdir=f"FightingGameStreamHelper/GameTitle/{self.manager.title}/player",
                                                     initialfile=save_filename)
-            with open(filename, "wb") as f:
-                pickle.dump(self.player, f)
+            self.player.save(filename)
 
         def load():
             filepath = filedialog.askopenfilename(title="プレイヤーデータ読み込み",
@@ -255,8 +254,7 @@ class TeamRegisterWindow(Window):
                                                     filetypes=[("team_file", ".team")],
                                                     initialdir=f"FightingGameStreamHelper/GameTitle/{self.manager.title}/Team",
                                                     initialfile=self.team.name)
-            with open(filename, "wb") as f:
-                pickle.dump(self.team, f)
+            self.team.save(filename)
 
         def load():
             filepath = filedialog.askopenfilename(title="チームデータ読み込み",

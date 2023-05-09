@@ -7,12 +7,16 @@ import pickle
 import tkinter as tk
 from tkinter import ttk
 import Process
-from Object import ImageObject, VariableObject
+from Player import Player, Team
 
 class Manager:
     def __init__(self, language, frame):
         self.layout = LayoutData(self)
         self.main_frame = frame
+        self.player_list = []
+        self.team_list = []
+        self.counter_list = []
+
         self.gametitle_variable = tk.IntVar()
         self.gametitle_list = os.listdir("FightingGameStreamHelper/GameTitle")
         self.language_variable = tk.IntVar()
@@ -30,6 +34,9 @@ class Manager:
         self.character_dict = json_data[self.language_list[self.language_variable.get()]]
 
     def create_frame(self):
+        self.player_list = []
+        self.team_list = []
+        self.coutner_list = []
         children = self.frame.winfo_children()
         for child in children:
             child.destroy()
@@ -57,6 +64,8 @@ class Manager:
             player_box = ttk.Combobox(player_frame,
                                       values=player_list)
             player_box.pack(padx=5, pady=5)
+            self.player_list.append(Player())
+
         elif widget == "team":
             team_list = os.listdir(f"FightingGameStreamHelper/Gametitle/{self.title}/team")
             team_frame = tk.LabelFrame(self.team_frame,
@@ -65,6 +74,8 @@ class Manager:
             team_box = ttk.Combobox(team_frame,
                                     values=team_list)
             team_box.pack(padx=5, pady=5)
+            self.team_list.append(Team())
+
         elif widget == "counter":
             counter_list = []
             for i in range(10):
@@ -75,6 +86,19 @@ class Manager:
             counter_box = ttk.Combobox(counter_frame,
                                        values=counter_list)
             counter_box.pack(padx=5, pady=5)
+            self.counter_list.append("")
+
+    def create_team_widget(self, count):
+        frame_list = self.team_frame.winfo_children()
+        if len(frame_list) == 0:
+            pass
+        else:
+            for i in range(count):
+                labelframe = tk.LabelFrame(frame_list[-1],
+                                            text=f"Player.{i+1}")
+                labelframe.pack()
+                box = ttk.Combobox(labelframe)
+                box.pack(padx=5, pady=5)
 
 
 
@@ -83,9 +107,6 @@ class LayoutData:
     def __init__(self, maneger:Manager):
         self.maneger = maneger
         self.list = []
-        self.flag_player = False
-        self.flag_count = False
-        self.team_count = 0
 
     def save(self, filepath):
         self.name = os.path.basename(filepath)
@@ -111,9 +132,9 @@ class LayoutData:
         if self.list == []:
             print("None")
         else:
-            count = 0
-            player = 0
+            print(self.list)
             for layout in self.list:
+                count = 0
                 c = layout.count()
                 if len(c) > 0:
                     if c[0][1] > count:
@@ -122,12 +143,12 @@ class LayoutData:
                         self.maneger.create_widget("player", layout)
                     if "team" in c[0][0]:
                         self.maneger.create_widget("team", layout)
-                        print(layout.name)
+                        self.maneger.create_team_widget(count)
                     if "counter" in c[0][0]:
                         self.maneger.create_widget("counter", layout)
 
-            print(f"WidgetFrame_{player}")
-            print(f"team_count_{count}")
+
+
 
 
 

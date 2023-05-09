@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import pickle
+import os
 from PIL import Image
 from Process import openfile
 
@@ -24,6 +26,18 @@ class Player:
                      f"team:{self.team}",
                      f"memo:{self.memo}"))
 
+    def save(self, filepath):
+        with open(filepath, "wb") as f:
+            pickle.dump(self, f)
+
+    def load(self, filepath):
+        if os.path.isfile(filepath):
+            with open(filepath, "rb") as f:
+                self = pickle.load(f)
+        else:
+            print("filepath_error")
+        return self
+
 
 class Team:
     def __init__(self):
@@ -46,4 +60,16 @@ class Team:
         player = openfile(filepath)
         if player:
             self.team_list[index] = player
+
+    def save(self, filepath):
+        with open(filepath, "wb") as f:
+            pickle.dump(self, f)
+
+    def load(self, filepath):
+        if os.path.isfile(filepath):
+            with open(filepath, "rb") as f:
+                self = pickle.load(f)
+        else:
+            print("filepath_error")
+        return self
 
