@@ -5,7 +5,7 @@ import os
 import collections
 import pickle
 from PIL import Image, ImageOps
-from Process import openfile, returnImageTk, Object_image_create, generate_image, name_paste
+from Process import openfile, returnImageTk, Object_image_create, name_paste
 
 class Layout:
     def __init__(self):
@@ -105,6 +105,9 @@ class ImageObject:
         self.copy = self.image.copy()
         self.tk_image = returnImageTk(self.image)
 
+    def classname(self):
+        return "ImageObject"
+
     def __eq__(self, other):
         if not isinstance(other, ImageObject):
             return NotImplemented
@@ -113,11 +116,16 @@ class ImageObject:
     def rename(self):
         self.number += 1
 
-    def resize(self, size:tuple):
-        self.size = size
-        copy = self.image.copy()
-        self.copy = copy.resize(size)
-        self.tk_image = returnImageTk(self.copy)
+    def resize(self, size:tuple, return_flag=False):
+        if return_flag:
+            copy = self.image.copy()
+            copy = copy.resize(size)
+            return copy
+        else:
+            self.size = size
+            copy = self.image.copy()
+            self.copy = copy.resize(size)
+            self.tk_image = returnImageTk(self.copy)
 
     def set_position(self, position:tuple):
         self.position = position
@@ -157,6 +165,9 @@ class VariableObject(ImageObject):
         self.copy = self.image.copy()
         self.tk_image = returnImageTk(self.image)
 
+    def classname(self):
+        return "VariableObject"
+
     def rename(self):
         super().rename()
         self.image = Object_image_create(f"{self.name}_{self.number}", self.square)
@@ -166,11 +177,6 @@ class VariableObject(ImageObject):
         pass
 
     def count(self):
-        return f"{self.style}_{self.sub_style}"
+        return f"{self.category}_{self.style}_{self.sub_style}"
 
-    def generate(self, variable):
-        if os.path.isfile(variable):
-            self.image = openfile(variable)
-        else:
-            self.image = generate_image(variable)
-        self.image.thumbnail(self.size)
+

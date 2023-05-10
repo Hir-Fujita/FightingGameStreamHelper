@@ -33,11 +33,17 @@ class Player:
     def load(self, filepath):
         if os.path.isfile(filepath):
             with open(filepath, "rb") as f:
-                self = pickle.load(f)
+                data = pickle.load(f)
+            self.name = data.name
+            self.gametitle = data.gametitle
+            self.character = data.character
+            self.country = data.country
+            self.twitter = data.twitter
+            self.team = data.team
+            self.memo = data.memo
+            self.image = data.image
         else:
             print("filepath_error")
-        return self
-
 
 class Team:
     def __init__(self):

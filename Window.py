@@ -238,7 +238,7 @@ class TeamRegisterWindow(Window):
             else:
                 player_box.set(player.name)
             face = returnImageTk(player.image, (100, 100))
-            chara = openfile(f"FightingGameStreamHelper\GameTitle\{self.manager.title}\chara\{player.character}/face.png")
+            chara = openfile(f"FightingGameStreamHelper\GameTitle\{self.manager.title}\character\{player.character}/face.png")
             if chara:
                 chara = returnImageTk(chara, (100, 100))
             else:
@@ -340,6 +340,7 @@ class LayoutWindow(Window):
                                                 filetypes=[("layoutSystemFile", ".lsf")],
                                                 initialdir=f"FightingGameStreamHelper/LayoutSystem")
         self.manager.layout = self.manager.layout.load(filepath)
+        self.manager.layout.set_maneger(self.manager)
         self.canvas.create_image_in_layoutObject(self.manager.layout)
 
     def overlap_check(self, data):

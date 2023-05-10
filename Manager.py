@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 import Process
 from Player import Player, Team
+from Process import GenerateImage
 
 class Manager:
     def __init__(self, language, frame):
@@ -40,11 +41,14 @@ class Manager:
         children = self.frame.winfo_children()
         for child in children:
             child.destroy()
-        self.counter_frame = tk.Frame(self.frame)
+        self.counter_frame = tk.LabelFrame(self.frame,
+                                           text="COUNTER")
         self.counter_frame.pack()
-        self.player_frame = tk.Frame(self.frame)
+        self.player_frame = tk.LabelFrame(self.frame,
+                                          text="PLAYER")
         self.player_frame.pack()
-        self.team_frame = tk.Frame(self.frame)
+        self.team_frame = tk.LabelFrame(self.frame,
+                                        text="TEAM")
         self.team_frame.pack()
         create_frame = tk.LabelFrame(self.frame,
                                      text="ファイル名")
@@ -52,7 +56,8 @@ class Manager:
         name_entry = tk.Entry(create_frame)
         name_entry.pack(padx=5, pady=5)
         create_button = tk.Button(create_frame,
-                                  text="生成")
+                                  text="生成",
+                                  command=lambda:self.generate_image_file(name_entry.get()))
         create_button.pack(padx=5, pady=5)
 
     def create_widget(self, widget, layout):
@@ -63,6 +68,8 @@ class Manager:
             player_frame.pack(side=tk.LEFT)
             player_box = ttk.Combobox(player_frame,
                                       values=player_list)
+            player_box.bind("<<ComboboxSelected>>", lambda e:self.player_list[layout.number].load(f"FightingGameStreamHelper/GameTitle/{self.title}/player/{player_box.get()}"))
+            # player_box.bind("<<ComboboxSelected>>", lambda e:print(player_box.get(), layout.number, e))
             player_box.pack(padx=5, pady=5)
             self.player_list.append(Player())
 
@@ -100,15 +107,49 @@ class Manager:
                 box = ttk.Combobox(labelframe)
                 box.pack(padx=5, pady=5)
 
+    def generate_image_file(self, filename):
+        print(filename)
+        image = GenerateImage()
+        for layout in self.layout.list:
+            print(f"-----{layout.name}------")
+            for obj in reversed(layout.object_list):
+                print(obj.name)
+                if obj.classname() == "ImageObject":
+                    image.image_object_create(obj, layout)
+                if obj.classname() == "VariableObject":
+                    if obj.style == "player":
+                        # name = self.player_frame.winfo_children()[layout.number].winfo_children()[0].get()
+                        # path = f"FightingGameStreamHelper/GameTitle/{self.title}/player/{name}"
+                        # self.player_list[layout.number].load(path)
+                        print(self.player_list[layout.number])
+                        image.player_object_create(obj, self.player_list[layout.number], layout)
+                        if obj.category == "image":
+                            pass
+                        elif obj.category == "text":
+                            pass
+                    if obj.style == "team":
+                        name = self.team_frame.winfo_children()[layout.number].winfo_children()[0]
+                        if obj.category == "image":
+                            pass
+                        elif obj.category == "text":
+                            pass
+                    if obj.style == "counter":
+                        pass
+        image.debug_show()
+
 
 
 
 class LayoutData:
     def __init__(self, maneger:Manager):
-        self.maneger = maneger
         self.list = []
+        self.set_maneger(maneger)
+
+    def set_maneger(self, maneger:Manager):
+        self.maneger = maneger
 
     def save(self, filepath):
+        del self.maneger
         self.name = os.path.basename(filepath)
         for layout in self.list:
             layout.save_process()
@@ -135,17 +176,20 @@ class LayoutData:
             print(self.list)
             for layout in self.list:
                 count = 0
-                c = layout.count()
-                if len(c) > 0:
-                    if c[0][1] > count:
-                        count = c[0][1]
-                    if "player" in c[0][0]:
+                count_list = layout.count()
+                if len(count_list) > 0:
+                    print(count_list)
+                    if count_list[0][1] > count:
+                        count = count_list[0][1]
+                    if "player" in count_list[0][0]:
                         self.maneger.create_widget("player", layout)
-                    if "team" in c[0][0]:
+                    if "team" in count_list[0][0]:
                         self.maneger.create_widget("team", layout)
                         self.maneger.create_team_widget(count)
-                    if "counter" in c[0][0]:
-                        self.maneger.create_widget("counter", layout)
+                    for c in count_list:
+                        if "counter" in c[0]:
+                            self.maneger.create_widget("counter", layout)
+
 
 
 
