@@ -339,4 +339,4 @@ class LayoutItemCreateCanvas(Canvas):
                                      layout.position[1] + object.position[1],
                                      anchor="nw",
                                      image=object.tk_image,
-                                     tag=object.name)
+                                     tag=f"{object.name}_{object.number}")

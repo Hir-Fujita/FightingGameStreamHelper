@@ -97,9 +97,22 @@ def name_paste(image, name):
               stroke_fill="black")
     return image
 
+def text_image_create(text, size):
+    t_size, font = textsize(text)
+    image = Image.new("RGBA", size=(t_size[0]+10, t_size[1]+10), color=(0,0,0,0))
+    draw = ImageDraw.Draw(image)
+    draw.text((5, 5),
+              text,
+              font=font,
+              fill="yellow",
+              stroke_width=5,
+              stroke_fill="black")
+    image = image.resize(size)
+    return image
 
 class GenerateImage:
-    def __init__(self):
+    def __init__(self, maneger):
+        self.maneger = maneger
         self.image = Image.new("RGBA", size=(1920, 1080), color=(0,0,0,0))
 
     def debug_show(self):
@@ -123,10 +136,11 @@ class GenerateImage:
             self.image.paste(image, position)
 
     def player_object_create(self, object, player, layout):
+        image = None
         size = (object.size[0]*2,
                 object.size[1]*2)
         if layout.miror:
-            position = (layout.position[0]*2 + (layout.size[0]*2 - object.position[0]*2- size[0]),
+            position = (layout.position[0]*2 + (layout.re_size[0]*2 - object.position[0]*2- size[0]),
                         layout.position[1]*2 + object.position[1]*2)
         else:
             position = (layout.position[0]*2 + object.position[0]*2,
@@ -140,12 +154,33 @@ class GenerateImage:
                 image = player.image.resize(size)
             if layout.miror:
                 image = ImageOps.mirror(image)
+        if object.category == "text":
+            if object.sub_style == "name":
+                text = player.name
+            elif object.sub_style == "character":
+                text = self.maneger.character_dict[str(player.character)]
+            elif object.sub_style == "team":
+                text = player.team
+            elif object.sub_style == "twitter":
+                text = player.twitter
+            elif object.sub_style == "country":
+                text = player.country
+            elif object.sub_style == "memo":
+                text = player.memo
+            if text != "":
+                image = text_image_create(text, size)
+        if image is not None:
             if image.mode == "RGBA":
                 self.image.paste(image, position, mask=image)
             else:
                 self.image.paste(image, position)
-        if object.category == "text":
-            print(f"{object.sub_style}_")
+
+    def save(self, filename):
+        if filename != "":
+            self.image.save(f"FightingGameStreamHelper/{filename}.png")
+        else:
+            print("filename_error")
+
 
 
 

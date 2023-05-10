@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-import os
 import tkinter as tk
-from tkinter import ttk
 
 import Manager
 import Window
@@ -25,7 +23,6 @@ class Application(tk.Frame):
         self.frame = tk.Frame(master)
         self.frame.pack()
         self.manager = Manager.Manager(LANGUAGE_LIST, self.frame)
-        self.frame = tk.Frame(master)
 
         with open("FightingGameStreamHelper/language.json", "r", encoding="utf-8") as f:
             label_data = json.load(f)

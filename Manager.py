@@ -109,7 +109,7 @@ class Manager:
 
     def generate_image_file(self, filename):
         print(filename)
-        image = GenerateImage()
+        image = GenerateImage(self)
         for layout in self.layout.list:
             print(f"-----{layout.name}------")
             for obj in reversed(layout.object_list):
@@ -118,24 +118,16 @@ class Manager:
                     image.image_object_create(obj, layout)
                 if obj.classname() == "VariableObject":
                     if obj.style == "player":
-                        # name = self.player_frame.winfo_children()[layout.number].winfo_children()[0].get()
-                        # path = f"FightingGameStreamHelper/GameTitle/{self.title}/player/{name}"
-                        # self.player_list[layout.number].load(path)
-                        print(self.player_list[layout.number])
                         image.player_object_create(obj, self.player_list[layout.number], layout)
-                        if obj.category == "image":
-                            pass
-                        elif obj.category == "text":
-                            pass
+
                     if obj.style == "team":
-                        name = self.team_frame.winfo_children()[layout.number].winfo_children()[0]
                         if obj.category == "image":
                             pass
                         elif obj.category == "text":
                             pass
                     if obj.style == "counter":
                         pass
-        image.debug_show()
+        image.save(filename)
 
 
 
