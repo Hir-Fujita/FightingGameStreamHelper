@@ -10,6 +10,7 @@ import Process
 from Player import Player, Team
 from Process import GenerateImage
 
+
 class Manager:
     def __init__(self, language, frame):
         self.layout = LayoutData(self)
@@ -102,7 +103,7 @@ class Manager:
         else:
             for i in range(count):
                 labelframe = tk.LabelFrame(frame_list[-1],
-                                            text=f"Player.{i+1}")
+                                           text=f"Player.{i+1}")
                 labelframe.pack()
                 box = ttk.Combobox(labelframe)
                 box.pack(padx=5, pady=5)
@@ -128,8 +129,6 @@ class Manager:
                     if obj.style == "counter":
                         pass
         image.save(filename)
-
-
 
 
 class LayoutData:
@@ -181,10 +180,4 @@ class LayoutData:
                     for c in count_list:
                         if "counter" in c[0]:
                             self.maneger.create_widget("counter", layout)
-
-
-
-
-
-
 
