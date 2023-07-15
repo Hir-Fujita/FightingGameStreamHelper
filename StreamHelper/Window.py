@@ -7,7 +7,7 @@ import os
 import pickle
 
 from Manager import Manager
-from Object import Player
+from Object import Player, Team
 
 
 class Window:
@@ -109,6 +109,7 @@ class PlayerRegisterWindow(Window):
             else:
                 save_filename = f"{self.player.name}_{self.player.team}"
             filename = filedialog.asksaveasfilename(title="プレイヤーデータ保存",
+                                                    parent=self.window,
                                                     defaultextension=".ply",
                                                     filetypes=[("player_file", ".ply")],
                                                     initialdir=f"StreamHelper/GameTitle/{self.manager.get_game_title()}/player",
@@ -117,6 +118,7 @@ class PlayerRegisterWindow(Window):
 
         def load():
             filepath = filedialog.askopenfilename(title="プレイヤーデータ読み込み",
+                                                  parent=self.window,
                                                   defaultextension=".ply",
                                                   filetypes=[("player_file", ".ply")],
                                                   initialdir=f"StreamHelper/GameTitle/{self.manager.get_game_title()}/player")
@@ -142,11 +144,12 @@ class PlayerRegisterWindow(Window):
 
 
 class TeamRegisterWindow(Window):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, title, width, height, manager):
+        super().__init__(title, width, height)
+        self.manager = manager
+        self.window_title = f"{self.manager.get_game_title()}_{self.window_title}"
 
     def create(self, manager:Manager, title, width, height):
-        super().call(manager, title, width, height)
         super().create()
         self.team = Team()
         self.team_index = 1

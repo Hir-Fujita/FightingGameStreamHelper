@@ -20,7 +20,7 @@ class Application(tk.Frame):
         self.manager = Manager.Manager(self.frame)
 
         self.player_register_window = Window.PlayerRegisterWindow("プレイヤー登録", 600, 400, self.manager)
-        # self.team_register_window = Window.TeamRegisterWindow("チーム登録", 600, 400, self.manager)
+        self.team_register_window = Window.TeamRegisterWindow("チーム登録", 600, 400, self.manager)
         # self.layout_window = Window.LayoutWindow("レイアウト設定", 980 + 300, 540, self.manager)
         # self.object_create_window = Window.CreateNewLayout("オブジェクト作成", 980 + 300 + 300, 540, self.manager)
         self.create_menu(master)
